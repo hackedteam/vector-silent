@@ -90,6 +90,7 @@ typedef ALIGN4 struct _data_section_header {
 		DataSectionBlob rvaToOffset;
 		DataSectionBlob rc4;
 		DataSectionBlob hookCall;
+		DataSectionBlob load;
 	} functions;					// COOKED
 
 	// strings
