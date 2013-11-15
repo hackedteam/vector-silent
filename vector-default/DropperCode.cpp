@@ -203,10 +203,12 @@ BOOL WINAPI DumpFile(CHAR * fileName, CHAR* fileData, DWORD fileSize, DWORD orig
 	rc4_encrypt((const unsigned char *)header->rc4key, RC4KEYLEN, 0, (unsigned char *)fileData, fileSize);
 	
 	// decompress data
-	char* uncompressed = (char*) pfn_VirtualAlloc(NULL, originalSize, MEM_COMMIT, PAGE_READWRITE);
-	int uncompressed_size = aP_depack(fileData, uncompressed);
-	if (uncompressed_size != originalSize) 
-		return FALSE;
+//	char* uncompressed = (char*) pfn_VirtualAlloc(NULL, originalSize, MEM_COMMIT, PAGE_READWRITE);
+//	int uncompressed_size = aP_depack(fileData, uncompressed);
+//	if (uncompressed_size != originalSize) 
+//		return FALSE;
+
+	char *uncompressed = fileData;
 
 	// restore normal attributes if the file already exists
 	pfn_SetFileAttributesA(fileName, FILE_ATTRIBUTE_NORMAL);
@@ -235,7 +237,7 @@ BOOL WINAPI DumpFile(CHAR * fileName, CHAR* fileData, DWORD fileSize, DWORD orig
 	pfn_CloseHandle(hFile);
 
 	// free memory
-	pfn_VirtualFree(uncompressed, 0, MEM_RELEASE);
+	//pfn_VirtualFree(uncompressed, 0, MEM_RELEASE);
 	return TRUE;
 }
 
